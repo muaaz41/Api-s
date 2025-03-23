@@ -1,0 +1,842 @@
+openapi: 3.0.0
+info:
+  title: Airline and Airport API
+  description: API for managing airlines, airports, and flight routes
+  version: 1.0.0
+servers:
+  - url: http://localhost:8001
+    description: Local development server
+
+tags:
+  - name: Airlines
+    description: Operations related to airline data
+  - name: Airports
+    description: Operations related to airport data
+  - name: Routes
+    description: Operations related to flight routes
+
+paths:
+  /airlines/country/{country}:
+    get:
+      tags:
+        - Airlines
+      summary: Get airlines by country
+      description: Retrieves all airlines for a specific country
+      parameters:
+        - name: country
+          in: path
+          required: true
+          description: Country name
+          schema:
+            type: string
+          example: "United States"
+      responses:
+        '200':
+          description: A list of airlines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Airline'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /airlines/{iata}/{icao}:
+    get:
+      tags:
+        - Airlines
+      summary: Get airline by IATA and ICAO code
+      description: Retrieves an airline with specific IATA and ICAO codes
+      parameters:
+        - name: iata
+          in: path
+          required: true
+          description: 2-letter IATA code
+          schema:
+            type: string
+            pattern: '^[A-Z0-9]{2}$'
+          example: "DL"
+        - name: icao
+          in: path
+          required: true
+          description: 3-letter ICAO code
+          schema:
+            type: string
+            pattern: '^[A-Z0-9]{3}$'
+          example: "DAL"
+      responses:
+        '200':
+          description: Found airline
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Airline'
+        '404':
+          description: Airline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Airlines
+      summary: Delete airline
+      description: Deletes an airline with specific IATA and ICAO codes
+      parameters:
+        - name: iata
+          in: path
+          required: true
+          description: 2-letter IATA code
+          schema:
+            type: string
+            pattern: '^[A-Z0-9]{2}$'
+          example: "DL"
+        - name: icao
+          in: path
+          required: true
+          description: 3-letter ICAO code
+          schema:
+            type: string
+            pattern: '^[A-Z0-9]{3}$'
+          example: "DAL"
+      responses:
+        '200':
+          description: Airline deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Airline deleted successfully"
+        '404':
+          description: Airline not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /airlines:
+    post:
+      tags:
+        - Airlines
+      summary: Create airline
+      description: Creates a new airline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - callsign
+                - country
+              properties:
+                name:
+                  type: string
+                  example: "Delta Air Lines"
+                iata:
+                  type: string
+                  pattern: '^[A-Z0-9]{2}$'
+                  example: "DL"
+                icao:
+                  type: string
+                  pattern: '^[A-Z0-9]{3}$'
+                  example: "DAL"
+                callsign:
+                  type: string
+                  example: "DELTA"
+                country:
+                  type: string
+                  example: "United States"
+      responses:
+        '200':
+          description: Created airline
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airline'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /airports/country/{country}:
+    get:
+      tags:
+        - Airports
+      summary: Get airports by country
+      description: Retrieves all airports for a specific country
+      parameters:
+        - name: country
+          in: path
+          required: true
+          description: Country name
+          schema:
+            type: string
+          example: "United States"
+      responses:
+        '200':
+          description: A list of airports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Airport'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /airports/{iata}/{icao}:
+    get:
+      tags:
+        - Airports
+      summary: Get airport by IATA and ICAO code
+      description: Retrieves an airport with specific IATA and ICAO codes
+      parameters:
+        - name: iata
+          in: path
+          required: true
+          description: 3-letter IATA code
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "ATL"
+        - name: icao
+          in: path
+          required: true
+          description: 4-letter ICAO code
+          schema:
+            type: string
+            pattern: '^[A-Z]{4}$'
+          example: "KATL"
+      responses:
+        '200':
+          description: Found airport
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Airport'
+        '404':
+          description: Airport not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Airports
+      summary: Delete airport
+      description: Deletes an airport with specific IATA and ICAO codes
+      parameters:
+        - name: iata
+          in: path
+          required: true
+          description: 3-letter IATA code
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "ATL"
+        - name: icao
+          in: path
+          required: true
+          description: 4-letter ICAO code
+          schema:
+            type: string
+            pattern: '^[A-Z]{4}$'
+          example: "KATL"
+      responses:
+        '200':
+          description: Airport deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Airport deleted successfully"
+        '404':
+          description: Airport not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /airports:
+    post:
+      tags:
+        - Airports
+      summary: Create airport
+      description: Creates a new airport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - city
+                - country
+                - latitude
+                - longitude
+              properties:
+                name:
+                  type: string
+                  example: "Hartsfield-Jackson Atlanta International Airport"
+                city:
+                  type: string
+                  example: "Atlanta"
+                country:
+                  type: string
+                  example: "United States"
+                iata:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  example: "ATL"
+                icao:
+                  type: string
+                  pattern: '^[A-Z]{4}$'
+                  example: "KATL"
+                latitude:
+                  type: number
+                  format: float
+                  example: 33.6367
+                longitude:
+                  type: number
+                  format: float
+                  example: -84.4281
+      responses:
+        '200':
+          description: Created airport
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airport'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /routes/distance/{from}/{to}:
+    get:
+      tags:
+        - Routes
+      summary: Calculate distance between airports
+      description: Calculates the great-circle distance between two airports
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: 3-letter IATA code of departure airport
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "ATL"
+        - name: to
+          in: path
+          required: true
+          description: 3-letter IATA code of arrival airport
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "LAX"
+      responses:
+        '200':
+          description: Distance calculation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  distance_km:
+                    type: string
+                    example: "3125.59"
+        '404':
+          description: Airports not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /routes/{departure}/{arrival}:
+    get:
+      tags:
+        - Routes
+      summary: List airlines and aircraft types for a route
+      description: Retrieves all airlines and aircraft types that operate between two airports
+      parameters:
+        - name: departure
+          in: path
+          required: true
+          description: 3-letter IATA code of departure airport
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "ATL"
+        - name: arrival
+          in: path
+          required: true
+          description: 3-letter IATA code of arrival airport
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "LAX"
+      responses:
+        '200':
+          description: List of airlines and aircraft types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    airline:
+                      type: string
+                      example: "DL"
+                    planes:
+                      type: string
+                      example: "B737 B757 B767"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No airlines found for this route
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /routes/arrivals/{from}:
+    get:
+      tags:
+        - Routes
+      summary: Get arrival airports
+      description: Retrieves all destination airports from a specific departure airport
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: 3-letter IATA code of departure airport
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          example: "ATL"
+      responses:
+        '200':
+          description: List of arrival airport IATA codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "LAX"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /routes/airline/{airline}/planes/{aircraft}:
+    get:
+      tags:
+        - Routes
+      summary: List routes for airline and aircraft type
+      description: Retrieves all routes operated by a specific airline using a specific aircraft type
+      parameters:
+        - name: airline
+          in: path
+          required: true
+          description: 2-letter IATA code of airline
+          schema:
+            type: string
+            pattern: '^[A-Z0-9]{2}$'
+          example: "DL"
+        - name: aircraft
+          in: path
+          required: true
+          description: 3-letter aircraft code
+          schema:
+            type: string
+            pattern: '^[A-Z0-9]{3}$'
+          example: "B737"
+      responses:
+        '200':
+          description: List of routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    departure:
+                      type: string
+                      example: "ATL"
+                    arrival:
+                      type: string
+                      example: "LAX"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /routes:
+    post:
+      tags:
+        - Routes
+      summary: Create route
+      description: Creates a new route with validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - airline
+                - departure
+                - arrival
+                - planes
+              properties:
+                airline:
+                  type: string
+                  pattern: '^[A-Z0-9]{2}$'
+                  description: 2-letter IATA code of airline
+                  example: "DL"
+                departure:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: 3-letter IATA code of departure airport
+                  example: "ATL"
+                arrival:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: 3-letter IATA code of arrival airport
+                  example: "LAX"
+                planes:
+                  type: string
+                  pattern: '^[A-Z0-9]{3}$'
+                  description: 3-letter aircraft code
+                  example: "B737"
+      responses:
+        '201':
+          description: Route created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Route added successfully"
+                  route:
+                    type: object
+                    properties:
+                      airline:
+                        type: string
+                        example: "DL"
+                      departure:
+                        type: string
+                        example: "ATL"
+                      arrival:
+                        type: string
+                        example: "LAX"
+                      planes:
+                        type: string
+                        example: "B737"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Routes
+      summary: Delete route
+      description: Deletes a specific route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - airline
+                - departure
+                - arrival
+              properties:
+                airline:
+                  type: string
+                  pattern: '^[A-Z0-9]{2}$'
+                  description: 2-letter IATA code of airline
+                  example: "DL"
+                departure:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: 3-letter IATA code of departure airport
+                  example: "ATL"
+                arrival:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: 3-letter IATA code of arrival airport
+                  example: "LAX"
+      responses:
+        '200':
+          description: Route deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Route deleted successfully"
+        '404':
+          description: Route not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Routes
+      summary: Update route
+      description: Updates a route by adding a new aircraft type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - airline
+                - departure
+                - arrival
+                - newAircraft
+              properties:
+                airline:
+                  type: string
+                  pattern: '^[A-Z0-9]{2}$'
+                  description: 2-letter IATA code of airline
+                  example: "DL"
+                departure:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: 3-letter IATA code of departure airport
+                  example: "ATL"
+                arrival:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: 3-letter IATA code of arrival airport
+                  example: "LAX"
+                newAircraft:
+                  type: string
+                  pattern: '^[A-Z0-9]{3}$'
+                  description: 3-letter aircraft code to add
+                  example: "B767"
+      responses:
+        '200':
+          description: Aircraft type updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Aircraft type updated successfully"
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Route not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Airline:
+      type: object
+      properties:
+        # id:
+        #   type: integer
+        #   example: 1
+        name:
+          type: string
+          example: "Delta Air Lines"
+        iata:
+          type: string
+          example: "DL"
+        icao:
+          type: string
+          example: "DAL"
+        callsign:
+          type: string
+          example: "DELTA"
+        country:
+          type: string
+          example: "United States"
+    
+    Airport:
+      type: object
+      properties:
+        # id:
+        #   type: integer
+        #   example: 1
+        name:
+          type: string
+          example: "Hartsfield-Jackson Atlanta International Airport"
+        city:
+          type: string
+          example: "Atlanta"
+        country:
+          type: string
+          example: "United States"
+        iata:
+          type: string
+          example: "ATL"
+        icao:
+          type: string
+          example: "KATL"
+        latitude:
+          type: number
+          format: float
+          example: 33.6367
+        longitude:
+          type: number
+          format: float
+          example: -84.4281
+    Routes:
+        type: object
+        properties:
+          airline:
+            type: string
+            example: "Delta Air Lines"
+          departure:
+            type: string
+            example: "ATL"
+          arrival:
+            type: string
+            example: "JFK"
+          planes:
+            type: array
+            items:
+              type: string
+            example: ["Boeing 737", "Airbus A320"]
+    Planes:
+        type: object
+        properties:
+          name:
+            type: string
+            example: "Boeing 747"
+          code:
+            type: string
+            example: "B747"
+    Countries:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "United States"
+        code:
+          type: string
+          example: "US"
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Server Error"
