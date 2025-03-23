@@ -4,6 +4,8 @@ info:
   description: API for managing airlines, airports, and flight routes
   version: 1.0.0
 servers:
+  - url: https://api-s-5dsc.onrender.com
+    description: Deployed Render server
   - url: http://localhost:8001
     description: Local development server
 
